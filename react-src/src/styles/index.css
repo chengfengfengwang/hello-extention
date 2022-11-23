@@ -1,0 +1,22 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+#react-root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+#react-root{
+  display: flex;
+  justify-content: center;
+}
+.guitar_wrapper{
+  visibility: visible;
+}
+.drag {
+  position: relative;
+}
+.drag img {
+  height: 100%;
+}
