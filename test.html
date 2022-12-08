@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      .box,
+      .drag {
+        /* width: 200px; */
+        /* height: 200px; */
+        position: absolute;
+        background: #9557cd;
+
+        /* left: 300px; */
+        top: 0px;
+      }
+      .tool {
+        display: block;
+        position: absolute;
+        width: 160px;
+        height: 60px;
+        text-align: center;
+        padding: 20px;
+      }
+      .tool_inner {
+        border: 1px solid #666;
+      }
+      .tool_inner img {
+        width: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <div class="box box1"></div>
+    <div class="box box2"></div> -->
+    <img
+      class="drag"
+      draggable="false"
+      src="wx.png"
+      alt=""
+    />
+    <img
+      class="drag"
+      draggable="false"
+      src="wx.png"
+      alt=""
+    />
+    <img
+      class="drag"
+      draggable="false"
+      src="wx.png"
+      alt=""
+    />
+    <img
+      class="drag"
+      draggable="false"
+      src="wx.png"
+      alt=""
+    />
+    <div class="tool">
+      <div class="tool_inner">
+        <img class="zoom_in" src="zoom-in.png" alt="">
+        <img class="zoom_out" src="zoom-out.png" alt="">
+        <img class="remove" src="remove.png" alt="">
+        <!-- <span class="zoom_in">放大</span>
+        <span class="zoom_out">缩小</span>
+        <span class="delete">删除</span> -->
+      </div>
+    </div>
+    <script>
+      // http://www.kouqinpu.cn/uploadfile/202212/9be48f40541da7d.png
+      const initImg = () => {
+        const imgs = document.querySelectorAll('.drag');
+        imgs.forEach((ele, index) => {
+          imgs[index].style.width = window.innerWidth / imgs.length + 'px';
+          imgs[index].style.top = '0px';
+          if (index === 0) {
+            imgs[0].style.left = '0px';
+          } else {
+            imgs[index].style.left = window.innerWidth / imgs.length * index + 'px';
+          }
+        })
+      }
+      initImg();
+
+      const getProperty = (ele) => {
+        const styleObj = getComputedStyle(ele);
+        const left = Number(styleObj.left.replace("px", ""));
+        const top = Number(styleObj.top.replace("px", ""));
+        const width = Number(styleObj.width.replace("px", ""));
+        const height = Number(styleObj.height.replace("px", ""));
+        return {
+          left,
+          top,
+          width,
+          height,
+        };
+      };
+      const tool = document.querySelector(".tool");
+      const { width: toolWidth, height: toolHeight } = getProperty(tool);
+
+      const drag = (ele) => {
+        ele.addEventListener("mousedown", (e) => {
+          const target = e.target;
+          const startX = e.pageX;
+          const startY = e.pageY;
+          const offsetX = Number(
+            getComputedStyle(target).left.replace("px", "")
+          );
+          const offsetY = Number(
+            getComputedStyle(target).top.replace("px", "")
+          );
+          const handleMouseMove = (e) => {
+            target.style.left = offsetX + e.pageX - startX + "px";
+            target.style.top = offsetY + e.pageY - startY + "px";
+            renderTool(target)
+          };
+          document.addEventListener("mousemove", handleMouseMove);
+          document.addEventListener("mouseup", (e) => {
+            document.removeEventListener("mousemove", handleMouseMove);
+          });
+        });
+      };
+
+      const renderTool = (target) => {
+        const { left, top, width, height } = getProperty(target);
+        tool.style.left = left + width / 2 - toolWidth / 2 + "px";
+        tool.style.top = top + height / 2 - toolHeight / 2 + "px";
+        tool.style.display = "block";
+      };
+      const applyTool = (ele) => {
+        ele.addEventListener("mouseenter", (e) => {
+          const target = e.target;
+          window.currentImg = target;
+          renderTool(target);
+        });
+        ele.addEventListener("mouseleave", (e) => {
+          tool.style.display = "none";
+        });
+      };
+
+      document.querySelectorAll(".drag").forEach((el) => {
+        drag(el);
+        applyTool(el);
+      });
+
+      tool.addEventListener("mouseenter", (e) => {
+        tool.style.display = "block";
+      });
+      tool.addEventListener("mouseleave", (e) => {
+        tool.style.display = "none";
+      });
+      document.querySelector(".zoom_in").addEventListener("click", () => {
+        const { left, top, width, height } = getProperty(currentImg);
+        window.currentImg.style.width = width + 50 + "px";
+        window.currentImg.style.left = left - 25 + "px";
+        window.currentImg.style.top = top - 25 + "px";
+        renderTool(currentImg)
+      });
+      document.querySelector(".zoom_out").addEventListener("click", () => {
+        const { left, top, width, height } = getProperty(currentImg);
+        window.currentImg.style.width = width - 50 + "px";
+        window.currentImg.style.left = left + 25 + "px";
+        window.currentImg.style.top = top + 25 + "px";
+        renderTool(currentImg)
+      });
+      document.querySelector(".remove").addEventListener("click", (e) => {
+        const parentObj = currentImg.parentNode; //获取div的父对象
+        parentObj.removeChild(currentImg);
+        initImg();
+        tool.style.display = 'none'
+      });
+    </script>
+  </body>
+</html>
